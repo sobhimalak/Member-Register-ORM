@@ -172,6 +172,3 @@ class Windows:
         # subscription = ''
         # Subscription = 'Paid' if values['-PAID-'] else 'Not paid'
         window.close()
-
-# TODO: fix subscription to get paid or not paid in filer
-# TODO:clear_Input fix it
