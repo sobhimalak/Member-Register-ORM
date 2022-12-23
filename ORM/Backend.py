@@ -38,23 +38,37 @@ class Windows:
                   [sg.Text("Last name:", size = (15, 1)), sg.Input(key = "-LAST_NAME-")],
                   [sg.Text("Adress:", size = (15, 1)), sg.Input(key = "-ADDRESS-")],
                   [sg.Text("Post Number:", size = (15, 1)), sg.Input(key = "-POST_NUMBER-")],
-                  [sg.Text('Subscription:', font = subtitle_font),
+                  [sg.Text('Subscription:', size = (15, 1)),
                    sg.Radio("Paid", "RADIO1", key = '-SUBSCRIPTION-', font = subtitle_font),
-                   sg.Radio("Not Paid", "RADIO2", key = '-SUBSCRIPTION-', font = subtitle_font)],
-                  [sg.Text("")],
+                   sg.Radio("Not Paid", "RADIO2", key = '-SUBSCRIPTION-', font = subtitle_font),
+                   sg.Push(), sg.Button("CLEAR FIELDS", size = (13, 1))],
                   [sg.Push(),
                    [sg.Text(size = (40, 1), key = '-OUTPUT-')],
-                   sg.Button("CANCEL", key = "-CANCEL-", size = (20, 1)),
-                   sg.Button("CONFIRM", key = "-CONFIRM-", size = (20, 1)),
-                   sg.Button("CLEAR", key = "-CLEAR-", size = (20, 1))
+                   [sg.Button("CONFIRM", key = "-CONFIRM-", size = (20, 1)),
+                    sg.Push(),
+                    sg.Button("CANCEL", key = "-CANCEL-", size = (20, 1))],
                    ]]
 
         window = sg.Window("Add member", layout, modal = True, font = default_font, margins = (60, 60))
 
+        def clear_Input():
+            for _ in values:
+                window['-FIRST_NAME-'].update('')
+                window['-LAST_NAME-'].update('')
+                window['-ADDRESS-'].update('')
+                window['-POST_NUMBER-'].update('')
+            return None
+
+
+
         while True:
             event, values = window.read()
             subscription = 'Paid' if values['-SUBSCRIPTION-'] else 'Not Paid'
-            print(f'The subscription is: {subscription}')
+            # print(f'The subscription is: {subscription}')
+
+            if event == 'CLEAR FIELDS':
+                clear_Input()
+
 
             if event == "-CONFIRM-":
                 results = validation.validate(values)
@@ -68,9 +82,9 @@ class Windows:
                     sg.PopupError('You Have Entered', error_message, font = default_font,
                                   background_color = '#098E89', no_titlebar = True, )
 
-                print('First Name:', values["-FIRST_NAME-"], 'Last Name: ', values["-LAST_NAME-"], 'Address: ',
-                      values["-ADDRESS-"], 'Post Number: ', values["-POST_NUMBER-"],
-                      'Subscription: ', subscription)
+                # print('First Name:', values["-FIRST_NAME-"], 'Last Name: ', values["-LAST_NAME-"], 'Address: ',
+                #       values["-ADDRESS-"], 'Post Number: ', values["-POST_NUMBER-"],
+                #       'Subscription: ', subscription)
 
                 insert_contact(values["-FIRST_NAME-"],
                                values["-LAST_NAME-"],
@@ -100,18 +114,9 @@ class Windows:
             conn.commit()
             conn.close()
 
-        # def clear_Input():
-        #     for key in values:
-        #         window['-FIRST_NAME-'].update('')
-        #         window['-LAST_NAME-'].update('')
-        #         window['-ADDRESS-'].update('')
-        #         window['-POST_NUMBER-'].update('')
-        #         window['-SUBSCRIPTION-'].update('')
-        #     return None
-
         Search_Frame = [[sg.Button("SEARCH Or REFRESH", key = "-SEARCH-", size = (20, 1)),
                          sg.InputText('', key = '-SEARCH_BOX-', size = (60, 1), tooltip = 'Search')]]
-        Delete_Frame = [[sg.Button('DELETE', size = (20, 1)), sg.Input('', s = 5, key = '-id-', size = (60, 1))]]
+        Delete_Frame = [[sg.Button('DELETE By ID',size = (20, 1)), sg.Input('', s = 5, key = '-id-', size = (60, 1))]]
         Database_Frame = [[sg.Table(
             values = rows,
             headings = ["Member ID", "First Name", "Last Name", "Address", "Post Number", "Subscription"],
@@ -119,7 +124,8 @@ class Windows:
             row_height = 35, key = '-TABLE-')]]
 
         layout = [[sg.Frame('Search, Refresh Or Delete', Search_Frame + Delete_Frame, font = default_font,
-                            background_color = background_color, size = (820, 120))],
+                            background_color = background_color, size = (820, 160))],
+                  [sg.Push(),sg.Button("CLEAR INPUT FIELDS", size = (20, 1))],
                   [sg.Frame('Your Database ', Database_Frame, font = default_font,
                             background_color = background_color)],
                   [sg.Text(size = (40, 1), font = default_font, key = '-OUTPUT-')],
@@ -130,12 +136,21 @@ class Windows:
         window = sg.Window("Members View", layout, modal = True, font = default_font, element_justification = "center",
                            margins = (60, 60))
 
+        def clear_SearchBox():
+            for _ in values:
+                window['-SEARCH_BOX-'].update('')
+                window['-id-'].update('')
+
+            return None
         window.read()
 
         while True:
             event, values = window.read()
             if event == '-EXIT-' or event == sg.WIN_CLOSED:
                 break
+
+            if event == 'CLEAR INPUT FIELDS':
+                clear_SearchBox()
 
             if event == '-SEARCH-':
                 search_term = values['-SEARCH_BOX-']
@@ -160,8 +175,6 @@ class Windows:
                 rows = cursor.fetchall()
                 window['-TABLE-'].update(values = rows)
 
-
-
             if event == 'View Not Paid Members':
                 # Select all not paid subscriptions
                 query = 'SELECT * FROM members WHERE subscription = "Not Paid"'
@@ -169,6 +182,4 @@ class Windows:
                 rows = cursor.fetchall()
                 window['-TABLE-'].update(values = rows)
 
-        # subscription = ''
-        # Subscription = 'Paid' if values['-PAID-'] else 'Not paid'
         window.close()
