@@ -36,7 +36,7 @@ while True:
     # if event == '-CLEAR-':
     #     clear_Input()
 
-    if event == "-DELETE-":
+    if event == "DELETE":
         Windows.view_window()
 
 

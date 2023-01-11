@@ -116,7 +116,7 @@ class Windows:
 
         Search_Frame = [[sg.Button("SEARCH Or REFRESH", key = "-SEARCH-", size = (20, 1)),
                          sg.InputText('', key = '-SEARCH_BOX-', size = (60, 1), tooltip = 'Search')]]
-        Delete_Frame = [[sg.Button('DELETE By ID',size = (20, 1)), sg.Input('', s = 5, key = '-id-', size = (60, 1))]]
+        Delete_Frame = [[sg.Button('DELETE By ID',size = (20, 1),key = 'DELETE'), sg.Input('', s = 5, key = '-id-', size = (60, 1))]]
         Database_Frame = [[sg.Table(
             values = rows,
             headings = ["Member ID", "First Name", "Last Name", "Address", "Post Number", "Subscription"],
